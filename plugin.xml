@@ -70,6 +70,7 @@ id="cordova-plugin-media"
         <config-file target="config.xml" parent="/*">
             <feature name="Media">
                 <param name="ios-package" value="CDVSound" />
+                <param name="onload" value="true" />
             </feature>
             <preference
               name="KeepAVAudioSessionAlwaysActive"

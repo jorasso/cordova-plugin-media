@@ -43,6 +43,19 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
             }
         }
     }
+
+    // from https://stackoverflow.com/questions/31000387/customizing-ioss-applicationdidfinishlaunchingwithoptions-method-in-a-cordova
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishLaunching:) name:UIApplicationDidFinishLaunchingNotification object:nil];
+}
+
+-(void)finishLaunching:(NSNotification *)notification
+{
+    // from https://stackoverflow.com/questions/14122363/iphone-app-allow-background-music-to-continue-to-play?lq=1
+    NSError *error;
+    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+    if (!success) {
+        NSLog(@"%@", [error localizedDescription]);
+    }
 }
 
 // Maps a url for a resource path for recording
@@ -370,8 +383,9 @@ BOOL keepAvAudioSessionAlwaysActive = NO;
                     bPlayAudioWhenScreenIsLocked = [playAudioWhenScreenIsLocked boolValue];
                 }
 
-                NSString* sessionCategory = bPlayAudioWhenScreenIsLocked ? AVAudioSessionCategoryPlayback : AVAudioSessionCategorySoloAmbient;
-                [self.avSession setCategory:sessionCategory error:&err];
+                 NSString* sessionCategory =  AVAudioSessionCategoryAmbient;
+                [self.avSession setCategory:sessionCategory withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&err];
+                BOOL ifAnythingIsAlreadyPlayingForFuture = [self.avSession isOtherAudioPlaying];
                 if (![self.avSession setActive:YES error:&err]) {
                     // other audio with higher priority that does not allow mixing could cause this to fail
                     NSLog(@"Unable to play audio: %@", [err localizedFailureReason]);
